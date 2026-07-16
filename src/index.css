@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --apple-bg: #f5f5f7;
+  --apple-white: #ffffff;
+  --apple-text: #1d1d1f;
+  --apple-blue: #0071e3;
+  --apple-purple: #ac39ff;
+  --apple-orange: #ff9f0a;
+  --apple-green: #30d158;
+  --apple-pink: #ff375f;
+  --apple-teal: #5ac8fa;
+  --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  background: var(--apple-bg);
+  color: var(--apple-text);
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body { min-height: 100vh; background: var(--apple-bg); overflow-x: hidden; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+::selection { background: rgba(0,113,227,0.15); color: #1d1d1f; }
+
+@layer components {
+  /* Apple 风格卡片 */
+  .card-apple {
+    @apply relative overflow-hidden bg-white rounded-apple;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: all 0.4s var(--ease-apple);
+  }
+  .card-apple:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  /* 大色块卡片 - 带图片背景 */
+  .card-hero {
+    @apply relative overflow-hidden rounded-apple-lg;
+    min-height: 360px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    transition: all 0.5s var(--ease-apple);
+  }
+  .card-hero:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+  }
+  .card-hero .card-bg {
+    @apply absolute inset-0 bg-cover bg-center transition-transform duration-700;
+  }
+  .card-hero:hover .card-bg {
+    transform: scale(1.05);
+  }
+  .card-hero .card-overlay {
+    @apply absolute inset-0;
+  }
+  .card-hero .card-content {
+    @apply relative z-10 p-8 flex flex-col justify-end h-full;
+  }
+}
+
+@layer utilities {
+  @supports (text-wrap: balance) {
+    .text-balance {
+      text-wrap: balance;
+    }
+  }
+}
+
+/* 骨架加载 — 使用 transform 避免 Composite/Paint 警告 */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(0,0,0,0.03);
+}
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 50%, transparent 100%);
+  animation: shimmer 2s ease-in-out infinite;
+}
