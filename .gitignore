@@ -1,4 +1,13 @@
 node_modules/
 dist/
-.DS_Store
-*.local
+.qa/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.openai/
+portfolio-old/
+test-results/
+playwright-report/
+public/bg-*.jpg
+public/logo.svg

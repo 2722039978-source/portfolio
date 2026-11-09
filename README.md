@@ -1,134 +1,85 @@
-<div align="center">
+# Portfolio 2.0
 
-<img src="public/logo.svg" alt="Noosphere Logo" width="180" />
+使用 React、TypeScript 与 Vite 构建的 Digital Garden，包含 Journal、项目记录、交互排版实验、深浅主题和响应式页面。
 
-# NOOSPHERE · 个人开发者仪表盘
+## 本地运行
 
-**Apple 设计 × 游戏 UI × 互联网幽默**
+需要 Node.js 22 与 npm。
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite)](https://vitejs.dev)
-[![Tailwind](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11-0055FF)](https://www.framer.com/motion/)
-
-</div>
-
----
-
-## 预览
-
-```
-┌──────────┬───────────────────────────────────────────┐
-│  左侧栏   │              主内容区                       │
-│          │                                           │
-│  ┌────┐  │  ┌─────────────────────────────────────┐  │
-│  │头像│  │  │  开发日志 (图片背景 · 可滚动阅读)      │  │
-│  │姓名│  │  │  文章1 · 文章2 · 文章3 ...            │  │
-│  │统计│  │  └─────────────────────────────────────┘  │
-│  └────┘  │                                           │
-│          │  ┌───────┬─────────┬──────────┐          │
-│  技术栈   │  │代码仓库│ 最近活动 │ 关于     │          │
-│          │  │(图片) │         │          │          │
-│  联系    │  └───────┴─────────┴──────────┘          │
-└──────────┴───────────────────────────────────────────┘
-```
-
-## 特性
-
-| 模块 | 说明 |
-|------|------|
-| 👤 开发者资料 | GitHub 实时头像 + 统计 + 技能矩阵 + 社交链接 |
-| 📝 开发日志 | 11 篇文章，首页摘要预览，点击跳转详情 |
-| 📦 代码仓库 | GitHub API 实时同步仓库列表 |
-| ⚡ 最近活动 | GitHub Events 活动时间线 |
-| 🐷 漂浮猪猪 | Google Noto Emoji 风格 SVG 猪猪背景动画 |
-| 🖼️ 图片背景 | 3 张自定义图片嵌入模块卡片 |
-
-## 技术栈
-
-| 层面 | 选型 |
-|------|------|
-| 框架 | React 18 + TypeScript |
-| 构建 | Vite 6 |
-| 样式 | Tailwind CSS 3 |
-| 动画 | Framer Motion 11 |
-| 路由 | React Router 6 |
-| 图标 | 内联 SVG (GooglePig) |
-| 数据 | GitHub REST API |
-
-## 快速开始
-
-```bash
-# 1. 安装依赖
-npm install
-
-# 2. 启动开发服务器
+```powershell
+npm ci
 npm run dev
+```
 
-# 3. 构建生产版本
+开发服务地址为 `http://127.0.0.1:5173`。
+
+```powershell
 npm run build
-
-# 4. 预览生产版本
 npm run preview
 ```
 
-## 项目结构
+生产预览地址为 `http://127.0.0.1:4173`。构建执行 TypeScript 检查，输出位于 `dist`。
 
+## 公开资料配置
+
+默认名称为 Digital Garden，默认配置不包含个人姓名、地区、邮箱、GitHub 账号或个人部署地址。
+
+需要展示公开资料时，将 `.env.example` 复制为 `.env.local`，填写需要的项目并重新启动或构建：
+
+| 变量 | 用途 |
+| --- | --- |
+| `VITE_PROFILE_NAME` | 导航、介绍和页面标题中的名称 |
+| `VITE_GITHUB_USERNAME` | GitHub 主页、仓库归档和公开动态 |
+| `VITE_CONTACT_EMAIL` | 关于区域的邮箱链接 |
+
+全部变量均为可选项。未配置 GitHub 账号时不发起 GitHub 请求，也不显示 GitHub 区域。配置后通过公开 API 获取资料、仓库与公共活动，成功数据缓存五分钟，支持刷新及网络错误提示。
+
+`VITE_` 变量会进入浏览器构建产物，只能填写希望公开的资料。访问令牌、密码和私钥不应填写在这些变量中。`.env.local` 与其他真实环境配置文件被 Git 忽略。
+
+## 内容与设计
+
+- `src/data/blog-posts.ts` 保存原有 11 篇文章、正文和元数据，文章格式保持 TypeScript。
+- `src/data/profile.ts` 保存通用介绍、技能和可选公开资料配置。
+- `src/data/editorial.ts` 保存分类与精选项目映射。
+- `src/styles/tokens.css` 定义色彩、字体、间距、边框、圆角、阴影、动效与响应式尺寸。
+- `src/components/TypePlayground.tsx` 提供文字、字距、字重、颜色与重置操作。
+- 字体由 npm 依赖提供并随构建发布。
+
+## 路由与部署
+
+| 路径 | 内容 |
+| --- | --- |
+| `/` | 首页 |
+| `/blog` | 文章列表 |
+| `/blog/:id` | 文章详情 |
+| `/#works` | 精选项目 |
+| `/#lab` | 交互实验 |
+| `/#about` | 关于 |
+
+搜索、分类与标签分别使用 `q`、`category`、`tag` 查询参数。原有文章 URL 保持有效。
+
+将 `dist` 部署到支持 SPA history 的静态托管服务。实际资源请求返回资源文件，页面路径返回 `index.html`。Nginx 可以使用 `try_files $uri $uri/ /index.html;`。应用部署在域名根路径。
+
+## 验证
+
+启动开发服务后执行：
+
+```powershell
+npm test
+npm audit
 ```
-portfolio/
-├── public/
-│   ├── logo.svg          # 项目 LOGO
-│   ├── favicon.svg       # 浏览器图标
-│   ├── bg-1.jpg          # 背景图片 1
-│   ├── bg-2.jpg          # 背景图片 2
-│   └── bg-3.jpg          # 背景图片 3
-├── src/
-│   ├── components/
-│   │   ├── dashboard/
-│   │   │   ├── AppleDashboard.tsx   # 首页仪表盘
-│   │   │   ├── GooglePig.tsx        # Google 风格猪猪 SVG
-│   │   │   ├── PigEmoji.tsx         # 漂浮猪猪动画
-│   │   │   └── TerminalHeader.tsx   # 顶部状态栏
-│   │   ├── layout/
-│   │   │   ├── Navbar.tsx           # 导航栏
-│   │   │   └── Footer.tsx           # 页脚
-│   │   ├── blog/
-│   │   │   └── BlogPostView.tsx     # 博客文章详情
-│   │   └── ui/                      # 通用 UI 组件
-│   ├── pages/
-│   │   ├── Home.tsx                 # 首页
-│   │   ├── Blog.tsx                 # 博客列表
-│   │   └── BlogPost.tsx             # 博客详情
-│   ├── data/
-│   │   ├── profile.ts              # 个人资料
-│   │   └── blog-posts.ts           # 博客文章 (11篇)
-│   ├── services/
-│   │   └── github.ts               # GitHub API 服务
-│   ├── lib/
-│   │   ├── motion.ts               # 动画令牌
-│   │   └── utils.ts                # 工具函数
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── index.html
-├── tailwind.config.js
-├── tsconfig.json
-├── vite.config.ts
-└── package.json
+
+Playwright 默认使用本机 Google Chrome。使用 Playwright Chromium 时执行 `npx playwright install chromium`，设置 `$env:PLAYWRIGHT_CHANNEL = 'chromium'`。
+
+生产预览服务运行期间可执行：
+
+```powershell
+$env:PLAYWRIGHT_BASE_URL = 'http://127.0.0.1:4173'
+npm test
 ```
 
-## 配色
+测试覆盖文章内容校验、全部文章路由、搜索筛选、主题、菜单、目录、排版实验、隐私默认值与响应式尺寸。文章 SHA256 基准直接保存在测试中，独立克隆本仓库即可执行检查。
 
-| 令牌 | 色值 | 用途 |
-|------|------|------|
-| Apple 蓝 | `#0071e3` | 主强调色 |
-| 明亮紫 | `#ac39ff` | 次级强调 |
-| Apple 橙 | `#ff9f0a` | 暖色点缀 |
-| Apple 绿 | `#30d158` | 在线状态 |
-| Apple 粉 | `#ff375f` | 装饰色 |
-| 背景灰 | `#f5f5f7` | 页面底色 |
+真实 GitHub 集成测试需要在运行网站和测试的终端中设置相同的 `VITE_GITHUB_USERNAME`；使用生产预览时需要在设置变量后重新构建。未配置账号时明确跳过这些集成测试。测试通过真实浏览器 DOM、尺寸和交互执行，关闭截图、视频与 trace，不替换 API 响应。
 
-## License
-
-MIT
+测试结果保存在 Git 忽略的 `.qa`。发布范围与检查说明见 [开发说明](docs/implementation.md) 和 [GitHub 发布说明](GITHUB_GUIDE.md)。

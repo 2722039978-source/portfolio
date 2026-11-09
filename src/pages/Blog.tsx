@@ -1,54 +1,39 @@
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { blogPosts } from '../data/blog-posts'
-import { formatDate } from '../lib/utils'
+import { useEffect } from 'react'
+import { Search, X, ArrowUpRight } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { categories, sortedPosts } from '../data/editorial'
+import { profileData } from '../data/profile'
+import JournalRow from '../components/JournalRow'
+import '../styles/blog.css'
 
-const cardColors = [
-  'linear-gradient(180deg, #e8f4fd 0%, #ffffff 100%)',
-  'linear-gradient(180deg, #f5edff 0%, #ffffff 100%)',
-  'linear-gradient(180deg, #fff5e6 0%, #ffffff 100%)',
-  'linear-gradient(180deg, #e6f9ed 0%, #ffffff 100%)',
-  'linear-gradient(180deg, #ffe8ed 0%, #ffffff 100%)',
-  'linear-gradient(180deg, #e6f6fd 0%, #ffffff 100%)',
-]
+const categoryNames = [...new Set(Object.values(categories))]
+const tags = [...new Set(sortedPosts.flatMap(post => post.tags))]
 
 export default function Blog() {
-  return (
-    <main className="min-h-screen pt-20 pb-32 px-6 bg-void">
-      <div className="max-w-6xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-center mb-14">
-          <h1 className="text-3xl font-bold text-frost-700 tracking-tight mb-3">📝 开发日志</h1>
-          <p className="text-frost-400">关于代码、架构、设计和工程实践的深度思考。</p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {blogPosts.map((post, i) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.06, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              <Link to={`/blog/${post.id}`}>
-                <article className="card-apple p-6 h-full flex flex-col min-h-[300px] group" style={{ background: cardColors[i % cardColors.length] }}>
-                  <div className="w-10 h-1 rounded-full mb-4 opacity-50" style={{ backgroundColor: post.coverColor }} />
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-[10px] font-mono text-frost-400">{formatDate(post.date)}</span>
-                    <span className="text-[10px] font-mono text-frost-400">{post.readTime} 分钟</span>
-                  </div>
-                  <h2 className="text-base font-bold text-frost-700 mb-2 leading-snug group-hover:text-stellar transition-colors line-clamp-2">{post.title}</h2>
-                  <p className="text-xs text-frost-400 leading-relaxed mb-4 flex-1 line-clamp-3">{post.excerpt}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {post.tags.slice(0,3).map(tag => (
-                      <span key={tag} className="text-[9px] font-mono text-frost-400 bg-white/40 px-2 py-0.5 rounded-full">#{tag}</span>
-                    ))}
-                  </div>
-                </article>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+  const [params, setParams] = useSearchParams()
+  const query = params.get('q') ?? ''
+  const category = params.get('category') ?? ''
+  const tag = params.get('tag') ?? ''
+  const filtered = sortedPosts.filter(post => {
+    const text = `${post.title} ${post.excerpt} ${post.tags.join(' ')} ${post.content}`.toLowerCase()
+    return (!query.trim() || text.includes(query.trim().toLowerCase()))
+      && (!category || categories[post.id] === category)
+      && (!tag || post.tags.includes(tag))
+  })
+  useEffect(() => { document.title = `Journal — ${profileData.name}` }, [])
+  function updateFilter(key: string, value: string, replace = false) {
+    const next = new URLSearchParams(params)
+    if (value) next.set(key, value)
+    else next.delete(key)
+    setParams(next, { replace })
+  }
+  return <div className="container blog-page">
+    <header className="blog-heading"><span className="section-index mono">THE DIGITAL GARDEN / JOURNAL</span><div><h1>Thoughts,<br /><span>in progress.</span></h1><p>关于代码、架构、设计和工程实践的深度思考。<br />让每一次探索，都留下可以继续生长的记录。</p></div></header>
+    <div className="blog-tools"><div className="category-tabs" aria-label="文章分类"><button className={!category ? 'active' : ''} aria-pressed={!category} onClick={() => updateFilter('category', '')}>全部文章 <span>{sortedPosts.length}</span></button>{categoryNames.map(name => <button key={name} className={category === name ? 'active' : ''} aria-pressed={category === name} onClick={() => updateFilter('category', name)}>{name}</button>)}</div><label className="search-box"><Search size={17} aria-hidden="true" /><input type="search" aria-label="搜索文章" placeholder="搜索想法、关键词…" value={query} onChange={event => updateFilter('q', event.target.value, true)} /></label></div>
+    <div className="blog-body"><aside className="blog-sidebar"><div><span className="mono muted">EXPLORE BY TAG</span><h2>沿着兴趣探索</h2><div className="tag-list">{tags.map(name => <button className={`tag ${tag === name ? 'selected' : ''}`} aria-pressed={tag === name} onClick={() => updateFilter('tag', tag === name ? '' : name)} key={name}>{name}</button>)}</div></div><div className="garden-note"><span className="note-star" aria-hidden="true">✳</span><p>每一篇文章，<br />都是一颗想法的种子。</p><Link className="text-link" to="/#about">认识作者 <ArrowUpRight size={15} /></Link></div></aside>
+      <div className="blog-results"><div className="results-heading"><p role="status">{filtered.length} 篇文章{tag ? ` · ${tag}` : ''}</p>{(query || category || tag) && <button className="clear-filters" onClick={() => setParams({})}>清除筛选 <X size={14} /></button>}</div>
+        {filtered.length ? filtered.map((post, index) => <JournalRow key={post.id} post={post} index={index} />) : <div className="empty-results"><span className="mono">NO MATCHES</span><h2>还没有相关记录</h2><p>可以尝试其他关键词，或者查看全部文章。</p><button className="button button-secondary" onClick={() => setParams({})}>查看全部文章</button></div>}
       </div>
-    </main>
-  )
+    </div>
+  </div>
 }

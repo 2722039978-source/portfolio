@@ -1,0 +1,20 @@
+import { expect, test } from '@playwright/test'
+
+test('首页内容区域与真实排版交互', async ({ page }) => {
+  await page.goto('/')
+  for (const id of ['journal', 'works', 'lab', 'about']) await expect(page.locator(`#${id}`)).toHaveCount(1)
+  await expect(page.locator('#journal h3').first()).toContainText('Noosphere 平台全景：一个会学习、能记忆、陪你成长的 AI 操作系统')
+  await page.getByLabel('实验文字').fill('Hello garden')
+  await expect(page.locator('.type-output')).toHaveText('Hello garden')
+  await page.getByLabel('字距', { exact: true }).fill('4')
+  await expect(page.locator('.type-output')).toHaveCSS('letter-spacing', '4px')
+  await page.getByLabel('字重', { exact: true }).selectOption('400')
+  await expect(page.locator('.type-output')).toHaveCSS('font-weight', '400')
+  await page.getByRole('button', { name: '橙色', exact: true }).click()
+  await expect(page.locator('.type-output')).toHaveCSS('color', 'rgb(174, 69, 36)')
+  await page.getByRole('button', { name: '反转颜色', exact: true }).click()
+  await expect(page.locator('.type-stage')).toHaveCSS('background-color', 'rgb(174, 69, 36)')
+  await page.getByRole('button', { name: '重置实验' }).click()
+  await expect(page.locator('.type-output')).toHaveText('What if?')
+  await expect(page.locator('.type-output')).toHaveCSS('letter-spacing', '-4px')
+})
